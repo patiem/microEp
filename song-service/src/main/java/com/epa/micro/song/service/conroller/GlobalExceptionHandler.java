@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -50,6 +51,19 @@ public class GlobalExceptionHandler {
                 .errorMessage(ex.getMessage())
                 .build();
         return ResponseEntity.status(409).body(validationError);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<SongExceptionResponse> handleArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        log.error(ex);
+        var wrongParamName = ex.getParameter().getParameterName();
+        var wrongParamType = ex.getParameter().getParameterType().getTypeName();
+
+        var validationError = SongExceptionResponse.builder()
+                .errorCode(400)
+                .errorMessage(String.format("Invalid value '%s' for ID. Must be a '%s'", wrongParamName, wrongParamType))
+                .build();
+        return ResponseEntity.badRequest().body(validationError);
     }
 
     @ExceptionHandler(Exception.class)

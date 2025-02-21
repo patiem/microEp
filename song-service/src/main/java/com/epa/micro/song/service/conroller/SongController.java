@@ -29,22 +29,23 @@ public class SongController {
     private SongService songService;
 
     @GetMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<SongDto> getSongById(@PathVariable Long id) throws SongExistsException {
+    public ResponseEntity<SongDto> getSongById(@PathVariable Long id) {
         var songDto = songService.getSongById(id);
         return ResponseEntity.ok(songDto);
     }
 
     @PostMapping(consumes = "application/json", produces = "application/json")
     public ResponseEntity<Map<String, Long>> createSong(@Valid @RequestBody SongDto songDto) {
-        var savedSong = songService.save(songDto);
-        var responseBody = Map.of("id", savedSong.getId());
-        return ResponseEntity.ok(responseBody);
+        var savedSongId = songService.save(songDto);
+        return ResponseEntity.ok(Map.of("id", savedSongId));
     }
 
     @DeleteMapping(produces = "application/json")
-    public ResponseEntity<Map<String, List<Long>>> deleteSong(@RequestParam("id")
-                                                                  @Size(min = 1, max = 200, message = "Wrong chars number for ids - must me [1,200]")
-                                                                  @Pattern(regexp = "^[0-9,]+$", message = "Incorrect format ids - Only numbers separated with coma allowed") String ids) {
+    public ResponseEntity<Map<String, List<Long>>> deleteSong(
+            @RequestParam("id")
+            @Size(min = 1, max = 200, message = "Wrong chars number for ids - must me [1,200]")
+            @Pattern(regexp = "^[0-9,]+$", message = "Incorrect format ids - Only numbers separated with coma allowed") String ids) {
+
         var idList = songService.deleteSongs(ids);
         return ResponseEntity.ok(Map.of("ids", idList));
     }

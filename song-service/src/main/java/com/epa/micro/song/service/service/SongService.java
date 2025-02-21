@@ -16,9 +16,9 @@ public class SongService {
     @Autowired
     private SongRepository songRepository;
 
-    public Song save(SongDto songDto) {
+    public Long save(SongDto songDto) {
         if(songRepository.existsById(songDto.getId())) throw new SongExistsException(String.format("Song with ID=%d already exists", songDto.getId()));
-        return songRepository.save(songDto.toSong());
+        return songRepository.save(songDto.toSong()).getId();
     }
 
     public SongDto getSongById(Long id) {
